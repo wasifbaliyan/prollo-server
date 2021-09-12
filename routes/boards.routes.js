@@ -1,0 +1,110 @@
+const express = require("express");
+const Board = require("../models/board.model");
+const Card = require("../models/card.model");
+const List = require("../models/list.model");
+
+const router = express.Router();
+
+router.get("/", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const boards = await Board.find({ userId });
+    if (!boards) {
+      return res.status(404).json({
+        message: "Boards not found.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Boards fetched successfully.",
+      response: {
+        boards,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { title } = req.body;
+
+    const board = await new Board({ userId, title });
+    await board.save();
+    res.status(201).json({
+      message: "Board created successfully.",
+      response: {
+        board,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const boardId = req.params.id;
+    const userId = req.user._id;
+    let board = await Board.findOne({ userId, _id: boardId });
+    if (!board) {
+      return res.status(404).json({
+        message: "Board not found.",
+      });
+    }
+    const lists = await List.find({ boardId, userId });
+    board.lists = lists;
+    console.log(board);
+    await board.save();
+    res.status(200).json({
+      message: "Board fetched successfully.",
+      response: {
+        board,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const boardId = req.params.id;
+    const userId = req.user._id;
+    let board = await Board.findOneAndDelete({ userId, _id: boardId });
+    if (!board) {
+      return res.status(404).json({
+        message: "Board does not exist.",
+      });
+    }
+
+    res.status(200).json({
+      message: "Board deleted successfully.",
+      response: {
+        board,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+module.exports = router;
