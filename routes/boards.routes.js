@@ -56,16 +56,17 @@ router.get("/:id", async (req, res) => {
   try {
     const boardId = req.params.id;
     const userId = req.user._id;
-    let board = await Board.findOne({ userId, _id: boardId });
+    let board = await Board.findOne({ userId, _id: boardId })
+      .populate("lists")
+      .exec();
     if (!board) {
       return res.status(404).json({
         message: "Board not found.",
       });
     }
-    const lists = await List.find({ boardId, userId });
-    board.lists = lists;
-    console.log(board);
-    await board.save();
+    // const lists = await List.find({ boardId, userId });
+    // board.lists = lists;
+    // await board.save();
     res.status(200).json({
       message: "Board fetched successfully.",
       response: {
@@ -85,7 +86,9 @@ router.delete("/:id", async (req, res) => {
   try {
     const boardId = req.params.id;
     const userId = req.user._id;
-    let board = await Board.findOneAndDelete({ userId, _id: boardId });
+    let board = await Board.findOneAndDelete({ userId, _id: boardId })
+      .populate("lists")
+      .exec();
     if (!board) {
       return res.status(404).json({
         message: "Board does not exist.",

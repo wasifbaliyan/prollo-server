@@ -1,6 +1,7 @@
 const express = require("express");
 
 const List = require("../models/list.model");
+const Card = require("../models/card.model");
 
 const router = express.Router();
 
@@ -8,7 +9,7 @@ router.get("/", async (req, res) => {
   try {
     const { boardId } = req.body;
     const userId = req.user._id;
-    const lists = await List.find({ boardId, userId });
+    const lists = await List.find({ boardId, userId }).populate("cards").exec();
     if (!lists) {
       return res.status(404).json({
         message: "Lists not found.",
@@ -38,6 +39,42 @@ router.post("/", async (req, res) => {
     await list.save();
     res.status(201).json({
       message: "List created successfully.",
+      response: {
+        list,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const { boardId } = req.body;
+    const listId = req.params.id;
+    const userId = req.user._id;
+    const list = await List.findOne({ boardId, userId, listId });
+    if (!list) {
+      return res.status(404).json({
+        message: "List not found.",
+      });
+    }
+
+    const cards = await Card.find({ listId, userId, boardId });
+    if (!cards) {
+      return res.status(404).json({
+        message: "Cards not found.",
+      });
+    }
+
+    list.cards = cards;
+    await list.save();
+    res.status(200).json({
+      message: "List fetched successfully.",
       response: {
         list,
       },
