@@ -1,4 +1,4 @@
-![Logo](https://res.cloudinary.com/dnboldv5r/image/upload/v1632606700/prollo/Component_5_1_q8kvah.png)
+![Logo](https://res.cloudinary.com/dnboldv5r/image/upload/v1632607015/prollo/Union_i7wdei.png)
 
 Prollo is a Trello clone for productivity built using React, Redux and Chakra UI and Node, Mongodb, Express on Backend.
 
