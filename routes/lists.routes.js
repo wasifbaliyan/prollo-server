@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const { boardId } = req.body;
+    const { boardId } = req.query;
     const userId = req.user._id;
     const lists = await List.find({ boardId, userId }).populate("cards").exec();
     if (!lists) {
@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
         message: "Lists not found.",
       });
     }
+
     res.status(200).json({
       message: "Lists fetched successfully.",
       response: {
@@ -32,10 +33,9 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { title, boardId } = req.body;
     const userId = req.user._id;
 
-    const list = await new List({ boardId, title, userId });
+    const list = await new List({ ...req.body, userId });
     await list.save();
     res.status(201).json({
       message: "List created successfully.",
@@ -54,7 +54,7 @@ router.post("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    const { boardId } = req.body;
+    const { boardId } = req.query;
     const listId = req.params.id;
     const userId = req.user._id;
     const list = await List.findOne({ boardId, userId, listId });

@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const { listId, boardId } = req.body;
+    const { listId, boardId } = req.query;
     const userId = req.user._id;
 
     const cards = await Card.find({ listId, boardId, userId });
@@ -34,20 +34,41 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { boardId, listId, title, description } = req.body;
     const userId = req.user._id;
     const card = await new Card({
       userId,
-      boardId,
-      listId,
-      title,
-      description,
+      ...req.body,
     });
     await card.save();
     res.status(201).json({
       message: "Card created successfully.",
       response: {
         card,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const updatedData = req.body;
+    const udpatedCard = await Card.findOneAndUpdate(
+      { userId, _id: req.params.id },
+      { ...updatedData, userId },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Card updated successfully.",
+      response: {
+        udpatedCard,
       },
     });
   } catch (error) {

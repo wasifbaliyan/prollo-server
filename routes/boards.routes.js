@@ -33,9 +33,8 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   try {
     const userId = req.user._id;
-    const { title } = req.body;
 
-    const board = await new Board({ userId, title });
+    const board = await new Board({ userId, ...req.body });
     await board.save();
     res.status(201).json({
       message: "Board created successfully.",
@@ -71,6 +70,31 @@ router.get("/:id", async (req, res) => {
       message: "Board fetched successfully.",
       response: {
         board,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const updatedData = req.body;
+    const updateBoard = await Board.findOneAndUpdate(
+      { userId, _id: req.params.id },
+      { ...updatedData, userId },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: "Board updated successfully.",
+      response: {
+        updateBoard,
       },
     });
   } catch (error) {

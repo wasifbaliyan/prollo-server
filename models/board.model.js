@@ -8,6 +8,14 @@ const boardSchema = new Schema({
     type: String,
     required: true,
   },
+  backgroundColor: {
+    type: String,
+    default: "#3182CE",
+  },
+  isStarred: {
+    type: Boolean,
+    default: false,
+  },
   lists: [{ type: Schema.Types.ObjectId, ref: "List" }],
 });
 
