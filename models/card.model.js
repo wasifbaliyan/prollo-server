@@ -11,6 +11,13 @@ const cardSchema = new Schema({
     required: true,
   },
   description: String,
+  priority: {
+    type: String,
+    default: "low",
+  },
+  dueDate: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("Card", cardSchema);
