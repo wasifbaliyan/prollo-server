@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const userId = req.user._id;
-    const boards = await Board.find({ userId });
+    const boards = await Board.find({ userId }).sort({ createdAt: -1 });
     if (!boards) {
       return res.status(404).json({
         message: "Boards not found.",
