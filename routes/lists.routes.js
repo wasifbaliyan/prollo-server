@@ -92,7 +92,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const listId = req.params.id;
     const userId = req.user._id;
-    const { boardId } = req.body;
+    const { boardId } = req.query;
     let list = await List.findOneAndDelete({ userId, _id: listId, boardId });
     if (!list) {
       return res.status(404).json({
