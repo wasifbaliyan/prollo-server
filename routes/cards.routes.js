@@ -112,4 +112,54 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+router.post("/dnd", async (req, res) => {
+  try {
+    const { droppableListId, draggableListId, draggableCardId, boardId } =
+      req.body;
+    const userId = req.user._id;
+    const found = await Card.findOne({
+      userId,
+      _id: draggableCardId,
+      boardId,
+      listId: draggableListId,
+    });
+    if (!found) {
+      return res.status(404).json({
+        message: "Card does not exist.",
+      });
+    }
+
+    const card = await new Card({
+      userId,
+      listId: droppableListId,
+      title: found.title,
+      description: found.description,
+      boardId,
+      dueDate: found.dueDate,
+      priority: found.priority,
+    });
+    await card.save();
+
+    await Card.findOneAndDelete({
+      userId,
+      _id: draggableCardId,
+      boardId,
+      listId: draggableListId,
+    });
+
+    res.status(201).json({
+      message: "Card created successfully.",
+      response: {
+        card,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Something went wrong.",
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
